@@ -1,0 +1,12 @@
+# runtime state: sqlite db, listener certs, build artifacts
+var/
+*.db
+*.db-wal
+*.db-shm
+.venv/
+__pycache__/
+*.pyc
+build/
+*.exe
+*.o
+*.obj
