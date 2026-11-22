@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Luna-Manager</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<div id="login" class="login">
+  <form class="card" onsubmit="return Luna.login(event)">
+    <h1><span class="glyph">◆</span> Luna-Manager</h1>
+    <p class="sub">operator console</p>
+    <label>Operator<input id="username" autocomplete="username" value="admin"></label>
+    <label>Password<input id="password" type="password" autocomplete="current-password"></label>
+    <button type="submit">Sign in</button>
+    <p id="login-error" class="err"></p>
+  </form>
+</div>
+
+<div id="app" class="shell hidden">
+  <aside class="sidebar">
+    <div class="brand"><span class="glyph">◆</span> Luna</div>
+    <button class="buildbtn" onclick="Luna.tab('build')">&#43; Build implant</button>
+    <div class="stats" id="stats">
+      <div><b id="stat-alive">0</b><span>beacons</span></div>
+      <div><b id="stat-total">0</b><span>total</span></div>
+      <div><b id="stat-queue">0</b><span>queued</span></div>
+    </div>
+    <input id="search" class="search" placeholder="filter hosts" oninput="Luna.renderSessions()">
+    <div id="sessions" class="sessions"></div>
+    <div class="foot">
+      <span id="who"></span>
+      <button class="link" onclick="Luna.logout()">sign out</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="empty" id="empty">
+      <h2>No session selected</h2>
+      <p>Pick a beacon on the left, or build a new implant.</p>
+      <button onclick="Luna.tab('build')">Open builder</button>
+    </div>
+
+    <div id="workspace" class="hidden">
+      <header class="hostbar">
+        <div>
+          <h2 id="host-name">—</h2>
+          <div class="meta" id="host-meta"></div>
+        </div>
+        <div class="tabs">
+          <button data-tab="terminal" class="active" onclick="Luna.tab('terminal')">Terminal</button>
+          <button data-tab="files" onclick="Luna.tab('files')">Files</button>
+          <button data-tab="tasks" onclick="Luna.tab('tasks')">Tasks</button>
+          <button data-tab="info" onclick="Luna.tab('info')">Info</button>
+        </div>
+      </header>
+
+      <section class="pane" id="pane-terminal">
+        <div class="term" id="term"></div>
+        <form class="prompt" onsubmit="return Luna.run(event)">
+          <span class="ps1">$</span>
+          <input id="cmd" autocomplete="off" spellcheck="false" placeholder="whoami / net user / dir C:\ ...">
+        </form>
+      </section>
+
+      <section class="pane hidden" id="pane-files">
+        <div class="filebar">
+          <button onclick="Luna.fsUp()">↑</button>
+          <input id="path" value="C:\\" onkeydown="if(event.key==='Enter')Luna.fsGo(this.value)">
+          <button onclick="Luna.fsGo(document.getElementById('path').value)">Go</button>
+        </div>
+        <table class="files"><thead><tr><th>Name</th><th>Size</th><th>Modified</th><th></th></tr></thead>
+        <tbody id="filebody"></tbody></table>
+      </section>
+
+      <section class="pane hidden" id="pane-tasks">
+        <div class="toolbar"><button onclick="Luna.loadTasks()">Refresh</button></div>
+        <table class="files"><thead><tr><th>Kind</th><th>State</th><th>Created</th><th>Result</th></tr></thead>
+        <tbody id="taskbody"></tbody></table>
+      </section>
+
+      <section class="pane hidden" id="pane-info">
+        <pre id="info-body" class="info"></pre>
+      </section>
+    </div>
+
+    <div id="buildview" class="hidden">
+      <header class="hostbar"><div><h2>Implant builder</h2>
+        <div class="meta">compile-time configuration, rendered into luna_config.hpp</div></div></header>
+      <div class="buildgrid">
+        <form class="buildform" onsubmit="return Luna.build(event)">
+          <label>Name<input id="b-name" value="luna"></label>
+          <label>Transport<select id="b-transport">
+            <option value="https">HTTPS beacon</option>
+            <option value="tcp">Raw TCP</option>
+          </select></label>
+          <label>Endpoints<textarea id="b-endpoints" rows="3">127.0.0.1:8443</textarea></label>
+          <label>XOR key (hex)<input id="b-xor" placeholder="auto if empty"></label>
+          <label>Mutex<input id="b-mutex" placeholder="Global\... auto if empty"></label>
+          <div class="row">
+            <label>Sleep (s)<input id="b-sleep" type="number" value="60" min="1"></label>
+            <label>Jitter (%)<input id="b-jitter" type="number" value="20" min="0" max="90"></label>
+          </div>
+          <label>Output file<input id="b-output" value="luna-implant.exe"></label>
+          <fieldset><legend>Capabilities</legend><div id="b-caps" class="caps"></div></fieldset>
+          <button type="submit">Build implant</button>
+        </form>
+        <div class="buildlist">
+          <h3>Builds</h3>
+          <div id="builds"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="/app.js"></script>
+</body>
+</html>
